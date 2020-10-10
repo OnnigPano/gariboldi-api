@@ -7,11 +7,16 @@ const { run } = require('./scraper');
 exports.cronTask = cron.schedule('* * * * * Monday-Sunday', this.dbSeeder);
 
 exports.dbSeeder = async () => {
-    let data = await run();
-    
-    for (let i = 0; i < data.length; i++) {
-        await Game.updateOne({ date: data[i].date }, data[i], { upsert: true });
+    try {
+        let data = await run();
+
+        for (let i = 0; i < data.length; i++) {
+            await Game.updateOne({ date: data[i].date }, data[i], { upsert: true });
+        }
+    } catch (error) {
+        return console.log('Error while populating database');
     }
+
 }
 
 /*
