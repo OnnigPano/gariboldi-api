@@ -24,12 +24,12 @@ const userSchema = new Schema({
         unique: 'Email already in use ({VALUE})',
         lowercase: true,
         validate(value) {
-                if(!validator.isEmail(value)) {
-                    throw new Error('not valid email')
-                }
+            if (!validator.isEmail(value)) {
+                throw new Error('not valid email')
+            }
         }
     },
-    token:{
+    token: {
         type: String
     },
 }, {
@@ -40,43 +40,43 @@ const userSchema = new Schema({
 userSchema.plugin(beautifyUnique);
 
 //Elimino la key password para que no sea visible en las responses
-userSchema.methods.toJSON = function() {
+userSchema.methods.toJSON = function () {
     const user = this;
-    const userObject = user.toObject();  
+    const userObject = user.toObject();
 
     delete userObject.password;
 
     return userObject;
 }
 
-userSchema.methods.generateToken = async function(){
+userSchema.methods.generateToken = async function () {
     const user = this;
-    user.token = jwt.sign({_id: user._id.toString()}, 'secret')
-     
+    user.token = jwt.sign({ _id: user._id.toString() }, 'secret')
+
     await user.save();
 
     return user.token;
 }
 
 userSchema.statics.findByCredentials = async (email, password) => {
-    const user =  await User.findOne({ email: email });
-    if(!user) {
+    const user = await User.findOne({ email: email });
+    if (!user) {
         throw new Error("Wrong credentials");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if(!isMatch) {
+    if (!isMatch) {
         throw new Error("Wrong credentials")
     }
 
     return user;
 }
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
     const user = this;
-    
-    if(user.isModified('password')) {
+
+    if (user.isModified('password')) {
         user.password = await bcrypt.hash(user.password, 8);
     }
     next();

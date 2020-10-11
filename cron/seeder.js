@@ -2,11 +2,15 @@ const cron = require('node-cron');
 const Game = require('../models/game');
 const { run } = require('./scraper');
 
-//Se ejecuta de lunes a Domingo
+/*
+Traigo la data obtenida de la web.
+Si no existe, se crea un nuevo documento.
+Ésta es la única forma con la que pude evitar el drop collection
+y posiblemente perder data antigua.
+De ésta manera siempre se mantiene hasta el partido más antiguo obtenido.
+*/
 
-exports.cronTask = cron.schedule('* * * * * Monday-Sunday', this.dbSeeder);
-
-exports.dbSeeder = async () => {
+const dbSeeder = async () => {
     try {
         let data = await run();
 
@@ -14,16 +18,15 @@ exports.dbSeeder = async () => {
             await Game.updateOne({ date: data[i].date }, data[i], { upsert: true });
         }
     } catch (error) {
-        return console.log('Error while populating database');
+        console.log('Error while populating database');
     }
 
 }
 
-/*
-    Traigo la data obtenida de la web.
-    Si no existe, se crea un nuevo documento.
-    Ésta es la única forma con la que pude evitar el drop collection
-    y posiblemente perder data antigua.
-    De ésta manera siempre se mantiene hasta el partido más antiguo obtenido.
-*/
+//Run cron every day at noon
+const cronTask = cron.schedule('00 12 * * 0-6', dbSeeder);
 
+module.exports = {
+    cronTask: cronTask,
+    dbSeeder: dbSeeder
+}

@@ -9,27 +9,25 @@ exports.createGame = async (req, res) => {
     if (!game) {
         return res.status(400).json({ success: false, message: 'Error creating Game' });
     }
-    if(!validator.isDate(req.body.date)) {
-        return res.status(400).json({success: false, message: 'Please use YYYY/MM/DD format'});
+    if (!validator.isDate(req.body.date)) {
+        return res.status(400).json({ success: false, message: 'Please use YYYY/MM/DD format' });
     }
 
     try {
         await game.save();
         res.status(201).json({ success: true, game });
     } catch (error) {
-        res.status(400).json({ success: false, error });
+        res.status(400).json({ success: false, ...error });
     }
 }
 
 exports.getGames = async (req, res) => {
     //Default limit 50 documents
-    let limit = req.query.limit ? Number(req.query.limit) : 50;
+    let limit = req.query.limit ? Number.parseInt(req.query.limit) : 50;
 
     try {
         const games = await Game.find().limit(limit).sort('-date');
-        if (!games) {
-            return res.status(404).send();
-        }
+
         res.json({ success: true, games });
     } catch (error) {
         res.status(400).json({ success: false, error });
@@ -80,17 +78,61 @@ exports.getByIdOrDate = async (req, res) => {
 
 exports.getByDateRange = async (req, res) => {
 
+    const games = await searchGames(req);
+
+    if (games instanceof Error) {
+        return res.status(400).json({ success: false, message: games.message });
+    }
+
+    if (!games) {
+        return res.status(404).send();
+    } else {
+        res.json({ success: true, games });
+    }
+
+}
+
+exports.getPoints = async (req, res) => {
+    const games = await searchGames(req);
+
+    if (games instanceof Error) {
+        return res.status(400).json({ success: false, message: games.message });
+    }
+
+    if (!games) {
+        return res.status(404).send();
+    }
+
+    let totalPoints = 0;
+    const teamName = 'Leicester City';
+
+    games.forEach(element => {
+        if (element.awayScore === element.homeScore) {
+            totalPoints++;
+        } else if (element.awayScore > element.homeScore && element.awayTeam === teamName) {
+            totalPoints = totalPoints + 3;
+        } else if (element.homeScore > element.awayScore && element.homeTeam === teamName) {
+            totalPoints = totalPoints + 3;
+        }
+    });
+
+    res.json({ success: true, totalPoints });
+}
+
+
+
+// Funcion para reutilizar en getPoints() y getByDateRange()
+const searchGames = async (req) => {
+
     if (!req.query.start || !req.query.end) {
-        return res.status(400).json({ success: false, message: 'Wrong query String' });
+        return new Error('Wrong query string');
     }
 
     try {
         const games = await Game.find({ date: { '$gte': req.query.start, '$lte': req.query.end } }).exec();
-        if (!games) {
-            return res.status(404).send();
-        }
-        res.json({ success: true, games });
+        return games;
     } catch (error) {
-        res.status(400).json(error);
+        return error;
     }
+
 }

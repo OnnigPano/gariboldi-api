@@ -14,12 +14,12 @@ exports.run = async () => {
         const jsonResult = JSON.parse(document.querySelector('script[type="application/ld+json"]').innerText);
         //traigo los resultados de cada partido
         const scores = document.querySelectorAll('.match-item__score--completed');
-        
+
         let data = [];
 
         for (let i = 0; i < jsonResult.length; i++) {
             data.push({
-                date: jsonResult[i].startDate,
+                date: (jsonResult[i].startDate).slice(0, 10),
                 description: jsonResult[i].name,
                 stadium: jsonResult[i].location.name,
                 homeTeam: jsonResult[i].homeTeam.name,
@@ -28,13 +28,13 @@ exports.run = async () => {
                 awayScore: scores[i].children[1].innerText
             })
         }
-        
+
         return data;
     });
 
-    
+
     // cierra el navegador
     await browser.close();
-    
+
     return allMatches;
 };

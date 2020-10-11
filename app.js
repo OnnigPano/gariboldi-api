@@ -11,15 +11,16 @@ const PORT = process.env.PORT || 5000;
 
 //Validar JSON format
 app.use(express.json({
-  verify : (req, res, buf, encoding) => {
+  verify: (req, res, buf, encoding) => {
     try {
       JSON.parse(buf);
-    } catch(e) {
-      res.status(404).json({error: 'Invalid JSON'});
+    } catch (e) {
+      res.status(400).json({ error: 'Invalid JSON' });
       throw Error('invalid JSON');
     }
   }
 }));
+
 app.use(morgan('dev'));
 
 //Routes
@@ -31,7 +32,7 @@ app.get('*', function (req, res) {
 
 //populates db for the first time
 dbSeeder();
-// then, it executes from Monday to Sunday
+// then, it executes every day at 12:00 AM
 cronTask.start();
 
 

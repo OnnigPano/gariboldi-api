@@ -13,7 +13,7 @@ exports.createUser = async (req, res) => {
         user.generateToken();
         res.status(201).json({ success: true, user })
     } catch (error) {
-        res.status(400).json({ success: false, error});
+        res.status(400).json({ success: false, error });
     }
 }
 
@@ -35,8 +35,8 @@ exports.logout = async (req, res) => {
         await User.findOneAndUpdate({ _id: req._id }, { token: '' });
 
         res.send();
-        
+
     } catch (error) {
-        res.status(500).json({error: 'Error in logout'});
+        res.status(500).json({ error: 'Error in logout' });
     }
 }

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const beautifyUnique = require('mongoose-beautiful-unique-validation');
+const validator = require('validator');
 
 const Schema = mongoose.Schema;
 
@@ -32,7 +33,7 @@ const gameSchema = new Schema({
             validator: function (v) {
                 return Number(v) >= 0;
             },
-            message: props => `${props.value} not a valid score`
+            message: props => `${props.value} is not a valid score`
         }
     },
     awayScore: {
@@ -42,7 +43,7 @@ const gameSchema = new Schema({
             validator: function (v) {
                 return Number(v) >= 0;
             },
-            message: props => `${props.value} not a valid score`
+            message: props => `${props.value} is not a valid score`
         }
     }
 });
