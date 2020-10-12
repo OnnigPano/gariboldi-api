@@ -24,7 +24,7 @@ const dbSeeder = async () => {
 }
 
 //Run cron every day at noon
-const cronTask = cron.schedule('00 12 * * 0-6', dbSeeder);
+const cronTask = cron.schedule('0 12 * * 0-6', dbSeeder);
 
 module.exports = {
     cronTask: cronTask,
