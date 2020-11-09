@@ -27,10 +27,3 @@ Para el registro de los usuarios decidí trabajar con Email en vez de Nombre,
 el nombre es un adicional pero no requerido. De ésta forma creo que la lógica es más consistente.
 
 La fechas se trabajaron como tipo Date y su formato ISODate. De ninguna forma se utilizó como String.
-
-## Contacto
-
-`Email`: onnigpano@gmail.com
-
-Ante cualqueir consulta o comentario quedo a disposición.
-
